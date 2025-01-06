@@ -1,0 +1,1 @@
+ C:\\Users\\jaska\\OneDrive\\Documents\\Desktop\\Capstone\\G-14\\g14\\.dart_tool\\flutter_build\\e90c50cfdac24aa5336b16759e266ea0\\native_assets.yaml: 

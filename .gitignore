@@ -1,0 +1,24 @@
+# Flutter
+/.flutter-plugins
+/.flutter-plugins-dependencies
+/.packages
+/.pub-cache
+/build/
+
+# Android
+/android/.gradle
+/android/app/build/
+
+# iOS
+/ios/Flutter/.generated
+/ios/Pods/
+/ios/.symlinks
+/ios/Flutter/Flutter.framework
+
+# macOS
+/macos/Flutter/.generated
+/macos/.symlinks
+
+# Windows
+/windows/Flutter/.generated
+/windows/.symlinks
