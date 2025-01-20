@@ -116,6 +116,8 @@ class _CommandScreenState extends State<CommandScreen> {
   String _status = "No status received yet";
   int _currentRssi = 0;
   Timer? _rssiPoller;
+  bool _isCalibrationComplete = false;
+  bool _isStartEnabled = true; 
 
   @override
   void initState() {
@@ -141,6 +143,14 @@ class _CommandScreenState extends State<CommandScreen> {
             _statusCharacteristic!.lastValueStream.listen((value) {
               setState(() {
                 _status = String.fromCharCodes(value);
+                // Update calibration status based on received status
+                if (_status == 'Calibration Started') {
+                  _isCalibrationComplete = true;
+                  _isStartEnabled = false; // Disable start button after calibration
+                } else if (_status == 'Calibration Stopped' || _status == 'Tracking Stopped') {
+                  _isStartEnabled = true; // Enable start button after calibration or tracking stopped
+                  _isCalibrationComplete = false;
+                }
               });
             });
           }
@@ -224,15 +234,15 @@ class _CommandScreenState extends State<CommandScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
               ElevatedButton(
-                onPressed: () => sendCommand('start'),
+                onPressed: _isStartEnabled ? () => sendCommand('start') : null, 
                 child: const Text('Start'),
               ),
               ElevatedButton(
-                onPressed: () => sendCommand('stop'),
+                onPressed: _isCalibrationComplete ? () => sendCommand('stop') : null, 
                 child: const Text('Stop'),
               ),
               ElevatedButton(
-                onPressed: () => sendCommand('calibrate'),
+                onPressed: _isCalibrationComplete ? () => sendCommand('calibrate') : null,
                 child: const Text('Calibrate'),
               ),
             ],
