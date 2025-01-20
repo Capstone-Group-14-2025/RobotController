@@ -4,6 +4,8 @@
 /.packages
 /.pub-cache
 /build/
+.dart_tool/
+*.dart_tool/
 
 # Android
 /android/.gradle

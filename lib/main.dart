@@ -45,7 +45,10 @@ class _ScanScreenState extends State<ScanScreen> {
 
     FlutterBluePlus.scanResults.listen((results) {
       setState(() {
-        _scanResults = results;
+        _scanResults = results.where((result) {
+          final name = result.device.platformName.toLowerCase();
+          return name.contains('raspberry');
+        }).toList();
       });
     }).onError((e) {
       print('Scan error: $e');
@@ -117,9 +120,9 @@ class _CommandScreenState extends State<CommandScreen> {
   @override
   void initState() {
     super.initState();
+    _startRssiPolling();
     _currentRssi = widget.initialRssi;
     _connectToDeviceAndFindCharacteristic();
-    _startRssiPolling();
   }
 
   Future<void> _connectToDeviceAndFindCharacteristic() async {
@@ -139,7 +142,6 @@ class _CommandScreenState extends State<CommandScreen> {
               setState(() {
                 _status = String.fromCharCodes(value);
               });
-              print('Notification received: $_status');
             });
           }
         }
@@ -160,11 +162,26 @@ class _CommandScreenState extends State<CommandScreen> {
   void _startRssiPolling() {
     _rssiPoller = Timer.periodic(const Duration(seconds: 1), (timer) async {
       try {
-        final rssi = await widget.device.readRssi();
+        const int numSamples = 10; // Number of RSSI samples
+        List<int> rssiValues = [];
+        for (int i = 0; i < numSamples; i++) {
+          final rssi = await widget.device.readRssi();
+          rssiValues.add(rssi);
+          await Future.delayed(const Duration(milliseconds: 100)); // Delay between samples
+        }
+        // Calculate the median
+        rssiValues.sort(); // Sort the list
+        int medianRssi;
+        if (rssiValues.length % 2 == 1) {
+          medianRssi = rssiValues[rssiValues.length ~/ 2];
+        } else {
+          medianRssi = ((rssiValues[rssiValues.length ~/ 2 - 1] +
+              rssiValues[rssiValues.length ~/ 2]) ~/
+              2);
+        }
         setState(() {
-          _currentRssi = rssi;
+          _currentRssi = medianRssi;
         });
-        print('Updated RSSI: $rssi');
       } catch (e) {
         print('Error reading RSSI: $e');
       }
@@ -188,7 +205,6 @@ class _CommandScreenState extends State<CommandScreen> {
         dataToSend = '$command:$distance';
       }
       await _targetCharacteristic!.write(dataToSend.codeUnits, withoutResponse: false);
-      print('Sent command: $dataToSend');
     } catch (e) {
       print('Error sending command: $e');
     }
