@@ -5,7 +5,11 @@
 /.pub-cache
 /build/
 .dart_tool/
-*.dart_tool/
+packages/
+.idea/
+.vscode/ 
+*.log  
+*.tmp  
 
 # Android
 /android/.gradle
